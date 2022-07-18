@@ -1,4 +1,4 @@
-# ElecTrap Backend
+# MediapipeTrack
 
 ## Requirements
 
