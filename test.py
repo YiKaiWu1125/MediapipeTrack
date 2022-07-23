@@ -5,11 +5,11 @@ def line_angle(ax,ay,bx,by,cx,cy):
     dx2 = ax - bx
     dy2 = ay - by
     angle1 = math.atan2(dy1, dx1)
-    angle1 = -int(angle1 * 180 /math.pi)
+    angle1 = -float(angle1 * 180 /math.pi)
     if angle1 < 0:
         angle1 = 360+angle1
     angle2 = math.atan2(dy2, dx2)
-    angle2 = -int(angle2 * 180 /math.pi)
+    angle2 = -float(angle2 * 180 /math.pi)
     if angle2 < 0:
         angle2 = 360 + angle2
     included_angle = angle1 - angle2

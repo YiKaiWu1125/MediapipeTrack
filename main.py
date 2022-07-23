@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 from os import lstat
 from textwrap import indent
 import cv2
@@ -23,9 +24,13 @@ footly=[]
 bo=[]
 
 box_index = []
+image = NULL
 
 val = 5
 z = 0
+ba = NULL
+bc = NULL
+img = NULL
 
 def line_length(ax,ay,bx,by):
     return math.sqrt((ax-bx)**2)+((ay-by)**2)
@@ -35,11 +40,11 @@ def line_angle(ax,ay,bx,by,cx,cy):
     dx2 = ax - bx
     dy2 = ay - by
     angle1 = math.atan2(dy1, dx1)
-    angle1 = -int(angle1 * 180 /math.pi)
+    angle1 = -float(angle1 * 180 /math.pi)
     if angle1 < 0:
         angle1 = 360+angle1
     angle2 = math.atan2(dy2, dx2)
-    angle2 = -int(angle2 * 180 /math.pi)
+    angle2 = -float(angle2 * 180 /math.pi)
     if angle2 < 0:
         angle2 = 360 + angle2
     included_angle = angle1 - angle2
@@ -59,11 +64,15 @@ with mp_pose.Pose(
     min_detection_confidence=0.5,
     min_tracking_confidence=0.5) as pose:
   while cap.isOpened():
+    old = img
     success, img = cap.read()
     if not success:
-        cv2.rectangle(image,(20,20),(500+1,500+1),(0,255,0),5)   # 畫出觸碰區
-        cv2.imshow('MediaPipe Pose', image)
-
+        #cv2.rectangle(image,(20,20),(500+1,500+1),(0,255,0),5)   # 畫出觸碰區
+        #image.flags.writeable = True
+        #image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        #image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        #cv2.imshow('MediaPipe Pose2', image)
+        #time.sleep(10)
 
 
 
@@ -102,19 +111,19 @@ with mp_pose.Pose(
                         nowmin = ang
                         nowindex = i
             if box_index[0] == nowindex :
-                print("index : "+ str(nowindex))
+                print("index : "+ str(nowindex)+ " x: "+ str(rx[nowindex]) + " y: "+str(ry[nowindex]))
                 print("go end .")
                 break
             else:
-                cv2.rectangle(image,(rx[rindex],ry[rindex]),(rx[nowindex],ry[nowindex]),(255,0,255),5)
-                cv2.imshow('MediaPipe Pose', image)
+                #cv2.rectangle(image,(rx[rindex],ry[rindex]),(rx[nowindex],ry[nowindex]),(255,0,255),5)
+                #cv2.imshow('MediaPipe Pose', image)
                 box_index.append(nowindex)
                 last_x = rx[rindex]
                 last_y = ry[rindex]
                 rindex = nowindex
-                print("-------------"+str(last_x)+" "+str(last_y)+" "+str(rindex)+" "+str(rx[nowindex])+" "+str(ry[nowindex]))
-            print("index : "+ str(nowindex))
-        time.sleep(10)
+                #print("-------------"+str(last_x)+" "+str(last_y)+" "+str(rindex)+" "+str(rx[nowindex])+" "+str(ry[nowindex]))
+            print("index : "+ str(nowindex)+ " x: "+ str(rx[nowindex]) + " y: "+str(ry[nowindex]))
+        #time.sleep(10)
         print("gmae over")
         # If loading a video, use 'break' instead of 'continue'.
         break
@@ -131,19 +140,19 @@ with mp_pose.Pose(
     if results.pose_landmarks:
         #right hand
         z+=1
-        if(z%4 == 2 ):
+        #if(z%4 == 2 ):
 
-            rx.append(int(results.pose_landmarks.landmark[20].x *w))
-            ry.append(int(results.pose_landmarks.landmark[20].y *h))
-            #left hand
-            lx.append(int(results.pose_landmarks.landmark[19].x *w))
-            ly.append(int(results.pose_landmarks.landmark[19].y *h))
-            #right foot
-            footrx.append(int(results.pose_landmarks.landmark[32].x *w))
-            footry.append(int(results.pose_landmarks.landmark[32].y *h))
-            #left foot
-            footlx.append(int(results.pose_landmarks.landmark[31].x *w))
-            footly.append(int(results.pose_landmarks.landmark[31].y *h))
+        rx.append(int(results.pose_landmarks.landmark[20].x *w))
+        ry.append(int(results.pose_landmarks.landmark[20].y *h))
+        #left hand
+        lx.append(int(results.pose_landmarks.landmark[19].x *w))
+        ly.append(int(results.pose_landmarks.landmark[19].y *h))
+        #right foot
+        footrx.append(int(results.pose_landmarks.landmark[32].x *w))
+        footry.append(int(results.pose_landmarks.landmark[32].y *h))
+        #left foot
+        footlx.append(int(results.pose_landmarks.landmark[31].x *w))
+        footly.append(int(results.pose_landmarks.landmark[31].y *h))
 
     # Draw the pose annotation on the image.
     image.flags.writeable = True
@@ -167,5 +176,5 @@ with mp_pose.Pose(
     # Flip the image horizontally for a selfie-view display.
     cv2.imshow('MediaPipe Pose', image)
     if cv2.waitKey(5) & 0xFF == 27:
-      break
+        break
 cap.release()
