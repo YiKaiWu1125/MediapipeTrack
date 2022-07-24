@@ -27,7 +27,7 @@ bo=[]
 box_index = []
 image = NULL
 
-val = 1500
+val = 50
 z = 0
 ba = NULL
 bc = NULL
@@ -67,6 +67,7 @@ def line_angle(ax,ay,bx,by,cx,cy):
 cap = cv2.VideoCapture("test.mp4")
 with mp_pose.Pose(min_detection_confidence=0.5,min_tracking_confidence=0.5) as pose:
     while cap.isOpened():
+
         
         success, img = cap.read()
         if not success:
@@ -131,6 +132,7 @@ with mp_pose.Pose(min_detection_confidence=0.5,min_tracking_confidence=0.5) as p
             break
         else:
             image = img
+            image=cv2.resize(image,(640,480))
         # To improve performance, optionally mark the image as not writeable to
         # pass by reference.
         image.flags.writeable = False
