@@ -1,4 +1,15 @@
+from asyncio.windows_events import NULL
+from os import lstat
+from textwrap import indent
+import cv2
+import mediapipe as mp
+mp_drawing = mp.solutions.drawing_utils
+mp_drawing_styles = mp.solutions.drawing_styles
+mp_pose = mp.solutions.pose
 import math
+import time
+import numpy
+
 def line_angle(ax,ay,bx,by,cx,cy):
     dx1 = cx - bx
     dy1 = cy - by
@@ -20,4 +31,13 @@ def line_angle(ax,ay,bx,by,cx,cy):
     if included_angle < 0 :
         included_angle += 360 
     return included_angle
-print(str(line_angle(836,293,837,267,836,295)))
+cap = cv2.VideoCapture("test.mp4")
+while cap.isOpened():
+    success, img = cap.read()
+    if not success:
+        break
+    cv2.imshow('frame',img)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+cap.release()
+cv2.destroyAllWindows()
