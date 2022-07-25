@@ -67,6 +67,8 @@ def draw_and_save_circle_link_poly(img,coor_a,coor_b,index,binarization_arr,open
     h = coor_b[1] - coor_a[1]   # y
     dis_len = float((w**2) + (h**2))
     dis_len = math.sqrt(dis_len)
+    if dis_len == 0:
+        dis_len = 0.00000000001
     #print("half_track_width:"+str(half_track_width))
     #print("dis_len:"+str(dis_len))
     k = float(float(half_track_width) / float(dis_len))

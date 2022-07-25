@@ -11,14 +11,15 @@ import time
 import numpy
 import playvideo_getcoor as p_g
 
-video_id = "test1.mp4"
+
+video_id = "test2.mp4"
 width = 1920
 hight = 1080
 half_track_width = 50
 
 
 
-right_hand,binarization_arr=p_g.get_track("test1.mp4")
+right_hand,binarization_arr=p_g.get_track("test2.mp4")
 print("successful get coor.")
 
 
@@ -31,8 +32,8 @@ def draw(image,right_hand,binarization_arr,nownumber):
     return image
 
 def draw_view(image,right_hand,binarization_arr,x,y,now_number,sta,game_begin_time,game_end_time):
-    front = (now_number-10)
-    end = (now_number+10)
+    front = (now_number-5)
+    end = (now_number+5)
     if front < 0 :
         front = 0
     if end >= len(binarization_arr):
