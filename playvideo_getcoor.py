@@ -97,12 +97,12 @@ def draw_and_save_circle_link_poly(img,coor_a,coor_b,index,binarization_arr,open
     link_dot.append([x,y])
 
     #draw line
-    cv2.line(img, (link_dot[0][0], link_dot[0][1]), (link_dot[3][0], link_dot[3][1]), (0,225,225), 5)
-    cv2.line(img, (link_dot[1][0], link_dot[1][1]), (link_dot[2][0], link_dot[2][1]), (0,225,225), 5)
+    cv2.line(img, (link_dot[0][0], link_dot[0][1]), (link_dot[3][0], link_dot[3][1]), (0,0,0), 5)
+    cv2.line(img, (link_dot[1][0], link_dot[1][1]), (link_dot[2][0], link_dot[2][1]), (0,0,0), 5)
     
     #full draw
     contours = np.array(link_dot)
-    cv2.fillPoly(img, pts = [contours], color =(0,255,255))
+    cv2.fillPoly(img, pts = [contours], color =(0,225,225))
     
 
     #save poly (need open save == 1)

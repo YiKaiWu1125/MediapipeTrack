@@ -14,15 +14,9 @@ import playvideo_getcoor as p_g
 video_id = "test1.mp4"
 width = 1920
 hight = 1080
-
 half_track_width = 50
 
 
-
-sta = 'prepare_begin'
-game_end_time = 0 
-game_begin_time = 0 
-x = y = 0
 
 right_hand,binarization_arr=p_g.get_track("test1.mp4")
 print("successful get coor.")
@@ -32,50 +26,37 @@ def draw(image,right_hand,binarization_arr,nownumber):
     
     for i in range(1,len(right_hand)):
         image=p_g.draw_and_save_circle_link_poly(image,right_hand[i-1],right_hand[i],i,binarization_arr,0)
-        #cv2.imshow('debug', image)
-        #if cv2.waitKey(5) & 0xFF == 27:
-        #    break
     for i in range (len(right_hand)):
         image = p_g.draw_circle(image,right_hand,nownumber)
     return image
 
-def draw_view(image,right_hand,binarization_arr,x,y,now_number,sta):
+def draw_view(image,right_hand,binarization_arr,x,y,now_number,sta,game_begin_time,game_end_time):
     front = (now_number-10)
     end = (now_number+10)
-    print(now_number,end)
     if front < 0 :
         front = 0
     if end >= len(binarization_arr):
         end = len(binarization_arr)-1
-    print(len(binarization_arr)-1)
-    print("range is : " +str(front) + " ~ " + str(end))
     if now_number == len(binarization_arr)-1 : 
         sta = 'game_over'
-    #print("front : "+str(front) + " end :"+ str(end))
+        game_end_time = time.time() 
     if now_number == 0 :
         if binarization_arr[0][x][y] == 1:
             now_number = 1
             sta = 'playing'
-            #print(x,y)
-    if now_number != 0 :
+            game_begin_time = time.time() 
+    else :
         k = True
-        print(end,front)
         for i in range (end,front-1,-1):
-            print("i:"+str(i)+" x:"+str(x)+" y:"+str(y))
             if binarization_arr[i][x][y] == 1 :
                 now_number = i
                 k = False
-                #print("when i is : "+str(i)+" go into.")
                 break
         if k == True:
             now_number = 0
             sta = 'prepare_begin'
-            #print("-----------------")
-            #print("x:"+str(x)+ " y:"+str(y)+ " ",end = '')
-            #print("restart")
-            #print("-----------------")
 
-    print("state is : "+ str(sta)  + "and now number is : "+ str(now_number) + " x:"+str(x)+ " y:"+str(y))
+    #print("state is : "+ str(sta)  + "and now number is : "+ str(now_number) + " x:"+str(x)+ " y:"+str(y))
     if sta != 'game_over':
         image = draw(image,right_hand,binarization_arr,now_number)   # 畫出電管
     if sta == 'prepare_begin':
@@ -87,16 +68,16 @@ def draw_view(image,right_hand,binarization_arr,x,y,now_number,sta):
                     (0, 150), cv2.FONT_HERSHEY_PLAIN, 5, (260, 25, 240), 3)  # 檢視成績
         cv2.putText(image, "<Game over>", (0, 250),
                     cv2.FONT_HERSHEY_PLAIN, 5, (260, 25, 240), 3)
-        cv2.rectangle(image, (155, 280), (420, 330),
-                      (0, 25, 240), 5)   # 再玩一次
-        cv2.putText(image, "play again", (160, 320),
-                    cv2.FONT_HERSHEY_PLAIN, 3, (0, 25, 240), 3)  # 再玩一次
-        cv2.rectangle(image, (155, 350), (420, 400),
-                      (0, 25, 240), 5)   # 遊戲結束
-        cv2.putText(image, "end game", (160, 390),
-                    cv2.FONT_HERSHEY_PLAIN, 3, (0, 25, 240), 3)  # 遊戲結束
+        #cv2.rectangle(image, (155, 280), (420, 330),
+        #              (0, 25, 240), 5)   # 再玩一次
+        #cv2.putText(image, "play again", (160, 320),
+        #            cv2.FONT_HERSHEY_PLAIN, 3, (0, 25, 240), 3)  # 再玩一次
+        #cv2.rectangle(image, (155, 350), (420, 400),
+        #              (0, 25, 240), 5)   # 遊戲結束
+        #cv2.putText(image, "end game", (160, 390),
+        #            cv2.FONT_HERSHEY_PLAIN, 3, (0, 25, 240), 3)  # 遊戲結束
     #print("sta is :"+str(sta))
-    return image,now_number
+    return image,now_number,sta,game_begin_time,game_end_time
 
 
 # For webcam input:
@@ -111,12 +92,17 @@ wi = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
 hi = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
 print("webcam fix Image Size: %d x %d" % (wi, hi))
 
+sta = 'prepare_begin'
 now_number = 0
+game_end_time = 0 
+game_begin_time = 0 
+
+
 with mp_pose.Pose(min_detection_confidence=0.5,min_tracking_confidence=0.5) as pose:
     while cap.isOpened():
         success, image = cap.read()
         if not success:
-            
+            ##can use to debug map
             #for i in range(len(binarization_arr)):
             #    rmg = img
             #    for h in range (hight+5):
@@ -130,7 +116,7 @@ with mp_pose.Pose(min_detection_confidence=0.5,min_tracking_confidence=0.5) as p
 
             print("Ignoring empty camera frame.")
             # If loading a video, use 'break' instead of 'continue'.
-            break
+            continue
 
         # To improve performance, optionally mark the image as not writeable to
         # pass by reference.
@@ -138,22 +124,19 @@ with mp_pose.Pose(min_detection_confidence=0.5,min_tracking_confidence=0.5) as p
         image.flags.writeable = False
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         img = image
-        #img=cv2.flip(img, 1)
+        #img=cv2.flip(img, 1) # 畫面翻轉
         #img = cv2.resize(image,(width,hight))  # 調整畫面尺寸
         results = pose.process(img)
         
         size = img.shape   # 取得攝影機影像尺寸
         w = size[1]        # 取得畫面寬度
-
         h = size[0]        # 取得畫面高度
-        #print("w:"+str(w)+" h: "+str(h))
 
         if results.pose_landmarks:
             rx = p_g.zero_to_one(results.pose_landmarks.landmark[20].x)
             ry = p_g.zero_to_one(results.pose_landmarks.landmark[20].y)
             x = int(rx *w)
             y = int(ry *h)
-            #print("x: " +str(x)  + " y : " +str(y))
             re = 1
         else:
             print("no hand.")
@@ -165,9 +148,10 @@ with mp_pose.Pose(min_detection_confidence=0.5,min_tracking_confidence=0.5) as p
             results.pose_landmarks,
             mp_pose.POSE_CONNECTIONS,
             landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
-        img,now_number = draw_view(img,right_hand,binarization_arr,x,y,now_number,sta)
+        img,now_number,sta,game_begin_time,game_end_time = draw_view(img,right_hand,binarization_arr,x,y,now_number,sta,game_begin_time,game_end_time)
 
         img=cv2.rectangle(img,(x-10,y-10),(x+10,y+10),(0,150,200),8)   # 畫出手的位置
+        
         cv2.imshow('MediaPipe Pose', img)
         if cv2.waitKey(5) & 0xFF == 27:
             break
